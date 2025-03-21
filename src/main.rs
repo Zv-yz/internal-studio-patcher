@@ -1,3 +1,4 @@
+use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Instant;
@@ -36,17 +37,22 @@ fn patch(input: &PathBuf, output: &PathBuf) {
 
 fn main() {
     let Cli { input, output } = Cli::parse();
+    let args: Vec<String> = env::args().collect();
 
-    #[rustfmt::skip]
-    let input = input.unwrap_or_else(|| {
-        let path: String = RegKey::predef(HKEY_CLASSES_ROOT)
+    let input = input.or_else(|| {
+        if args.len() > 1 {
+            Some(PathBuf::from(&args[1]))
+        } else {
+            let path: String = RegKey::predef(HKEY_CLASSES_ROOT)
             .open_subkey("roblox-studio").unwrap()
             .open_subkey("DefaultIcon").unwrap()
             .get_value("").unwrap();
+        
+            Some(PathBuf::from(path))
+        }
+    }).unwrap();
 
-        PathBuf::from(path)
-    });
-
+    #[rustfmt::skip]
     let output = if cfg!(debug_assertions) {
         output.unwrap_or_else(|| input.with_file_name("RobloxStudioBeta_INTERNAL.exe"))
     } else {
