@@ -39,6 +39,7 @@ fn main() {
     let Cli { input, output } = Cli::parse();
     let args: Vec<String> = env::args().collect();
 
+    #[rustfmt::skip]
     let input = input.or_else(|| {
         if args.len() > 1 {
             Some(PathBuf::from(&args[1]))
@@ -52,7 +53,6 @@ fn main() {
         }
     }).unwrap();
 
-    #[rustfmt::skip]
     let output = if cfg!(debug_assertions) {
         output.unwrap_or_else(|| input.with_file_name("RobloxStudioBeta_INTERNAL.exe"))
     } else {
